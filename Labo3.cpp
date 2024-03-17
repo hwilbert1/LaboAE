@@ -195,16 +195,57 @@ void Remplacement(std::vector<TSolution> &Parents, std::vector<TSolution> Enfant
 
 	//INFOS pour définir votre methode de remplacement...
 
+	int i;
+
 	//**Declaration et dimension dynamique d'une population temporaire pour contenir tous les parents et les enfants
-	//std::vector<TSolution> Temporaire;
-	//Temporaire.resize(unAlgo.TaillePop + unAlgo.TaillePopEnfant);
-	//**Pour trier toute la population temporaire, il suffit de faire l'appel suivant: TrierPopulation(Temporaire, 0, unGen.TaillePop+unGen.TaillePopEnfant);
+	std::vector<TSolution> Temporaire;
+	
+	for (i = 0; i < Parents.size(); i++)
+	{
+		Temporaire.push_back(Parents[i]);
+	}
+	for (i = 0; i < Enfants.size(); i++)
+	{
+		Temporaire.push_back(Enfants[i]);
+	}
+
+
+	//**Pour trier toute la population temporaire, il suffit de faire l'appel suivant: 
+	
+	TrierPopulation(Temporaire, 0, unAlgo.TaillePop+ unAlgo.TaillePopEnfant);
+
+	int parentsize = Parents.size();
+
+	float RandRatio = 1 - std::min(1.0f, unAlgo.CptEval * unAlgo.CptEval / (float)(unAlgo.NB_EVAL_MAX * unAlgo.NB_EVAL_MAX));
+	RandRatio *= 0.75 * parentsize;
+	RandRatio = (int)RandRatio;
+	
+	Parents.clear();
+
+	for (i = 0; i < parentsize - RandRatio; i++)
+	{
+		Parents.push_back(Temporaire[i]);
+	}
+	
+	Temporaire.erase(Temporaire.begin(), Temporaire.begin() + i);
+
+	for (i = 0; i < RandRatio; i++)
+	{
+		int j = rand() % Temporaire.size();
+
+		Parents.push_back(Temporaire[j]);
+		Temporaire.erase(Temporaire.begin() + j);
+	}
+
+	
+	
+	//std::cout << unAlgo.CptEval * unAlgo.CptEval / (float)(unAlgo.NB_EVAL_MAX* unAlgo.NB_EVAL_MAX) << " " << parentsize << " "<< parentsize - RandRatio << " " << RandRatio << "\n";
 
 	//... a definir
 
 	//**A LA FIN: Liberation de la population temporaire
-	//int i;
-	//for (i = 0; i < Temporaire.size(); i++)
-	//	Temporaire[i].Seq.clear();
-	//Temporaire.clear();
+	
+	for (i = 0; i < Temporaire.size(); i++)
+		Temporaire[i].Seq.clear();
+	Temporaire.clear();
 }
