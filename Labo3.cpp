@@ -158,22 +158,7 @@ int main(int NbParam, char* Param[])
 }
 
 
-
-
-int ElementInVector(int Element, std::vector<int> Vector)
-{
-	int Pos = -1;
-	for (int i = 0; i < Vector.size(); i++)
-	{
-		if (Vector[i] == Element)
-		{
-			Pos = i;
-			break;
-		}
-	}
-	return Pos;
-}
-
+//Ajoute; a PossibleJobs, les sucesseur de l'élément en paramètre qui peuvent etre placés
 void AddSuccToPossibleJobs(std::vector<int>& PossibleJobs, int Element, int index, std::vector<int> Enfant, TProblem unProb)
 {
 	/*
@@ -221,6 +206,8 @@ void AddSuccToPossibleJobs(std::vector<int>& PossibleJobs, int Element, int inde
 		int CurJob = unProb.Succ[Element][i];
 		//std::cout << CurJob << " pred ";
 
+
+		//on verifie que tout les prédécésseur sont placé en avant dans Enfant.Seq
 		int IsPossible = true;
 		for (int j = 0; j < unProb.Pred[CurJob].size(); j++)
 		{
@@ -241,6 +228,7 @@ void AddSuccToPossibleJobs(std::vector<int>& PossibleJobs, int Element, int inde
 				x++;
 			}
 
+			//si le prédécessuer n'a pas été trouver, on quitte la boucle et on n'ajoutera pas ce sucesseur a PossibleJob
 			if (Pos == -1)
 			{
 				IsPossible = false;
@@ -249,7 +237,8 @@ void AddSuccToPossibleJobs(std::vector<int>& PossibleJobs, int Element, int inde
 
 		}
 
-		if (IsPossible && (ElementInVector(CurJob, PossibleJobs) == -1) && (ElementInVector(CurJob, Enfant) == -1))
+		//si tout les predecesseur ont été trouvé, qu'il n'est pas dans Enfant.Seq ou dans PossibleJobs, on ajoute le sucesseur.
+		if (IsPossible && (std::find(PossibleJobs.begin(), PossibleJobs.end(), CurJob) == PossibleJobs.end()) && (std::find(Enfant.begin(), Enfant.end(), CurJob) == Enfant.end()))
 		{
 			PossibleJobs.push_back(CurJob);
 		}
@@ -288,6 +277,8 @@ TSolution Croisement(TSolution Parent1, TSolution Parent2, TProblem unProb, TAlg
 		Enfant.Seq.push_back(-1);
 	}
 
+
+	//On commence par ajouté tout les éléments qui sont dans les deux parents et qui sont placeable.
 	for (int i = 0; i < unProb.NbJob; i += 1) {
 		bool to_add = false;
 
@@ -361,6 +352,15 @@ TSolution Croisement(TSolution Parent1, TSolution Parent2, TProblem unProb, TAlg
 
 		if (Enfant.Seq[i] == -1)
 		{
+
+			/*
+			
+			On test l'élément qui est dans les parent a cet emplacement.
+			- si c'est le même dans les deux parent et qu'il est dans possible job, on ajoute cet élément
+			- sinon, si un des parents a un élément qui est dans PossibleJob, on l'ajoute, choisi aléatoirement si c'est le cas pour les deux parent.
+			- sinon, on choisi un élément dans PossibleJobs aléatoirement.
+			
+			*/
 
 			std::vector<int>::iterator it1;
 			it1 = std::find(PossibleJobs.begin(), PossibleJobs.end(), Parent1.Seq[i]);
@@ -474,8 +474,7 @@ void Remplacement(std::vector<TSolution>& Parents, std::vector<TSolution> Enfant
 	int parentsize = Parents.size();
 
 
-	//afin d'explorer l'ensemble des solutions, on portion des solutions gard�es pour la population suivante seront choisi al�atoirement. Le ratio Deterministe - Stochastique diminuera au cours du temps.
-	//le ratio sera 75% Stochastique au debut et 0% a la fin
+	//afin d'explorer l'ensemble des solutions, on portion des solutions gard�es pour la population suivante seront choisi al�atoirement et l'autre de façon déterministe. 
 	float RandRatio = (int)0.8 * parentsize;
 
 	Parents.clear();
