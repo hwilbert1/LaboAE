@@ -189,7 +189,7 @@ TSolution Croisement(TSolution Parent1, TSolution Parent2, TProblem unProb, TAlg
 //**A DEFINIR PAR L'ETUDIANT*****************************************************************************
 //**NB: IL FAUT RESPECTER LA DEFINITION DES PARAMETRES
 //******************************************************************************************************* 
-void Remplacement(std::vector<TSolution> &Parents, std::vector<TSolution> Enfants, TProblem unProb, TAlgo unAlgo)
+void Remplacement(std::vector<TSolution>& Parents, std::vector<TSolution> Enfants, TProblem unProb, TAlgo unAlgo)
 {
 	//METHODE BIDON: La population Parent demeure inchangée
 
@@ -199,7 +199,7 @@ void Remplacement(std::vector<TSolution> &Parents, std::vector<TSolution> Enfant
 
 	//**Declaration et dimension dynamique d'une population temporaire pour contenir tous les parents et les enfants
 	std::vector<TSolution> Temporaire;
-	
+
 	for (i = 0; i < Parents.size(); i++)
 	{
 		Temporaire.push_back(Parents[i]);
@@ -211,24 +211,28 @@ void Remplacement(std::vector<TSolution> &Parents, std::vector<TSolution> Enfant
 
 
 	//**Pour trier toute la population temporaire, il suffit de faire l'appel suivant: 
-	
-	TrierPopulation(Temporaire, 0, unAlgo.TaillePop+ unAlgo.TaillePopEnfant);
+
+	TrierPopulation(Temporaire, 0, unAlgo.TaillePop + unAlgo.TaillePopEnfant);
 
 	int parentsize = Parents.size();
 
-	float RandRatio = 1 - std::min(1.0f, unAlgo.CptEval * unAlgo.CptEval / (float)(unAlgo.NB_EVAL_MAX * unAlgo.NB_EVAL_MAX));
-	RandRatio *= 0.75 * parentsize;
-	RandRatio = (int)RandRatio;
-	
+
+	//afin d'explorer l'ensemble des solutions, on portion des solutions gardées pour la population suivante seront choisi aléatoirement. Le ratio Deterministe - Stochastique diminuera au cours du temps.
+	//le ratio sera 75% Stochastique au debut et 0% a la fin
+	float RandRatio = (int)0.8 * parentsize;
+
 	Parents.clear();
 
+	//choisi les meilleurs individus de la population
 	for (i = 0; i < parentsize - RandRatio; i++)
 	{
 		Parents.push_back(Temporaire[i]);
 	}
-	
+
 	Temporaire.erase(Temporaire.begin(), Temporaire.begin() + i);
 
+
+	//choisi un nombre d'individu aléatoirement
 	for (i = 0; i < RandRatio; i++)
 	{
 		int j = rand() % Temporaire.size();
@@ -237,14 +241,7 @@ void Remplacement(std::vector<TSolution> &Parents, std::vector<TSolution> Enfant
 		Temporaire.erase(Temporaire.begin() + j);
 	}
 
-	
-	
-	//std::cout << unAlgo.CptEval * unAlgo.CptEval / (float)(unAlgo.NB_EVAL_MAX* unAlgo.NB_EVAL_MAX) << " " << parentsize << " "<< parentsize - RandRatio << " " << RandRatio << "\n";
 
-	//... a definir
-
-	//**A LA FIN: Liberation de la population temporaire
-	
 	for (i = 0; i < Temporaire.size(); i++)
 		Temporaire[i].Seq.clear();
 	Temporaire.clear();
