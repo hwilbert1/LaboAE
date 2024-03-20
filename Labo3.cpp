@@ -156,7 +156,6 @@ int main(int NbParam, char* Param[])
 	//system("PAUSE");
 	return 0;
 }
-
 //******************************************************************************************************
 //**Fonction qui réalise le CROISEMENT (échange de genes) entre deux parents. Retourne l'enfant produit.
 //******************************************************************************************************
@@ -170,12 +169,74 @@ TSolution Croisement(TSolution Parent1, TSolution Parent2, TProblem unProb, TAlg
 	
 	int j;
 	TSolution Enfant;
+	Enfant = Parent1;
+	int restants = unProb.NbJob;
+	Enfant.Seq = std::vector<int>(unProb.NbJob);
+	for (int i = 0; i < unProb.NbJob; i += 1) {
+		bool to_add = false;
+		if (Parent1.Seq[i] == Parent2.Seq[i]) {
+			to_add = true;
+			if (!(std::find(Enfant.Seq.begin(), Enfant.Seq.end(), Parent1.Seq[i]) != Enfant.Seq.end())) {
+				for (int& j : unProb.Pred[Parent1.Seq[i]]) {
+					if (!(std::find(Enfant.Seq.begin(), Enfant.Seq.end(), j) != Enfant.Seq.end())) {
+						to_add = false;
+					}
+				}
+			}
+		}
+		if (to_add) {
+			Enfant.Seq[i] = Parent1.Seq[i];
+			restants -= 1;
+		}
+		else {
+			Enfant.Seq[i] = -1;
+		}
+	}
+	while (restants > 0) {
+		int index = 0;
+		std::vector<int> placed;
+		std::vector<int> placeable;
+		while (Enfant.Seq[index] != -1) {
+			placed.push_back(Enfant.Seq[index]);
+			index += 1;
+		}
+		for (int i = 0; i < unProb.NbJob; i += 1) {
+			if (!(std::find(Enfant.Seq.begin(), Enfant.Seq.end(), i) != Enfant.Seq.end())) {
+				bool to_add = true;
+				for (int &j : unProb.Pred[i]) {
+					if (!(std::find(placed.begin(), placed.end(), j) != placed.end())) {
+						to_add = false;
+					}
+				}
+				if (to_add) {
+					placeable.push_back(i);
+				}
+			}
+		}
+		Enfant.Seq[index] = placeable[rand() % placeable.size()];
+		restants -= 1;
+	}
 
 	//METHODE BIDON: Recopie l'es genes du'enfant est une copie du Parent1
-	Enfant = Parent1;
 
 	//**NE PAS ENLEVER
 	EvaluerSolution(Enfant, unProb, unAlgo);
+	if (Enfant.FctObj == 2147483647) {
+		std::cout << "Solution invalide generee" << std::endl;
+		for (int& i : Parent1.Seq) {
+			std::cout << i << " ";
+		}
+		std::cout << std::endl;
+		for (int& i : Parent2.Seq) {
+			std::cout << i << " ";
+		}
+		std::cout << std::endl;
+		for (int& i : Enfant.Seq) {
+			std::cout << i << " ";
+		}
+		std::cout << std::endl;
+		std::cout << "----------------------------------------" << std::endl;
+	}
 	return (Enfant);
 }
 
@@ -199,7 +260,6 @@ void Remplacement(std::vector<TSolution> &Parents, std::vector<TSolution> Enfant
 
 	//**Declaration et dimension dynamique d'une population temporaire pour contenir tous les parents et les enfants
 	std::vector<TSolution> Temporaire;
-	
 	for (i = 0; i < Parents.size(); i++)
 	{
 		Temporaire.push_back(Parents[i]);
