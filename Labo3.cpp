@@ -156,6 +156,113 @@ int main(int NbParam, char* Param[])
 	//system("PAUSE");
 	return 0;
 }
+
+
+
+
+int ElementInVector(int Element, std::vector<int> Vector)
+{
+	int Pos = -1;
+	for (int i = 0; i < Vector.size(); i++)
+	{
+		if (Vector[i] == Element)
+		{
+			Pos = i;
+			break;
+		}
+	}
+	return Pos;
+}
+
+void AddSuccToPossibleJobs(std::vector<int>& PossibleJobs, int Element, int index, std::vector<int> Enfant, TProblem unProb)
+{
+	/*
+	std::cout << "____\nElement " << Element << "\n";
+
+	for (int i = 0; i < Enfant.size(); i++)
+	{
+		if (Enfant[i] != -1)
+			std::cout << Enfant[i] << " ";
+		else
+			std::cout << ". ";
+	}
+	std::cout << "\n";
+
+	for (int i = 0; i < PossibleJobs.size(); i++)
+	{
+			std::cout << PossibleJobs[i] << " ";
+	}
+	std::cout << "\n\n";
+	*/
+
+	//std::cout << "Enfant ";
+	for (int& i : Enfant) {
+		if (i == -1)
+		{
+			//std::cout << ". ";
+		}
+		else
+		{
+			//std::cout << i << " ";
+		}
+
+	}
+	//std::cout << std::endl;
+	//std::cout << "Pj\t";
+	for (int i = 0; i < PossibleJobs.size(); i++)
+	{
+		//std::cout << PossibleJobs[i] << "\t";
+	}
+	//std::cout << "\n";
+
+	//std::cout << Element << "Succ\t";
+	for (int i = 0; i < unProb.Succ[Element].size(); i++)
+	{
+		int CurJob = unProb.Succ[Element][i];
+		//std::cout << CurJob << " pred ";
+
+		int IsPossible = true;
+		for (int j = 0; j < unProb.Pred[CurJob].size(); j++)
+		{
+			int CurPred = unProb.Pred[CurJob][j];
+			//std::cout << CurPred << " ";
+
+
+
+			int Pos = -1;
+			int x = 0;
+			while (x <= index)
+			{
+				if (Enfant[x] == CurPred)
+				{
+					Pos = x;
+					break;
+				}
+				x++;
+			}
+
+			if (Pos == -1)
+			{
+				IsPossible = false;
+				break;
+			}
+
+		}
+
+		if (IsPossible && (ElementInVector(CurJob, PossibleJobs) == -1) && (ElementInVector(CurJob, Enfant) == -1))
+		{
+			PossibleJobs.push_back(CurJob);
+		}
+
+		//if(IsPossible)
+		//	std::cout << "I\t";
+		//else
+			//std::cout << "IN\t";
+	}
+	//std::cout << "\n\n";
+}
+
+
 //******************************************************************************************************
 //**Fonction qui r�alise le CROISEMENT (�change de genes) entre deux parents. Retourne l'enfant produit.
 //******************************************************************************************************
@@ -167,76 +274,166 @@ TSolution Croisement(TSolution Parent1, TSolution Parent2, TProblem unProb, TAlg
 	//**INDICE: Le sous-programme rand() g�n�re al�atoirement un nombre entier entre 0 et RAND_MAX (i.e., 32767) inclusivement.
 	//**Pour tirer un nombre al�atoire entier entre 0 et MAX-1 inclusivement, il suffit d'utiliser l'instruction suivante : NombreAleatoire = rand() % MAX;
 	
-	int j;
+	//std::cout << "__________________________\nStart Croisement\n";
+	
 	TSolution Enfant;
-	Enfant = Parent1;
-	int restants = unProb.NbJob;
-	Enfant.Seq = std::vector<int>(unProb.NbJob);
+	
+
+	Enfant.Fin.resize(unProb.NbJob);
+	Enfant.Retard.resize(unProb.NbJob);
+	Enfant.wRetard.resize(unProb.NbJob);
+
+	for (int i = 0; i < unProb.NbJob; i++)
+	{
+		Enfant.Seq.push_back(-1);
+	}
+
 	for (int i = 0; i < unProb.NbJob; i += 1) {
 		bool to_add = false;
+
 		if (Parent1.Seq[i] == Parent2.Seq[i]) {
 			to_add = true;
+		
+
 			if (!(std::find(Enfant.Seq.begin(), Enfant.Seq.end(), Parent1.Seq[i]) != Enfant.Seq.end())) {
+			
+				//std::cout << Parent1.Seq[i] << " Predecesseurs\t";
 				for (int& j : unProb.Pred[Parent1.Seq[i]]) {
-					if (!(std::find(Enfant.Seq.begin(), Enfant.Seq.end(), j) != Enfant.Seq.end())) {
+
+					std::vector<int>::iterator it;
+					it = std::find(Enfant.Seq.begin(), Enfant.Seq.end(), j);
+					if (it != Enfant.Seq.end())
+					{
+						//std::cout << j << " found at position : ";
+						//std::cout << it - Enfant.Seq.begin() << "|\t";
+					}
+					else {
+						//std::cout << j << "not found\t";
 						to_add = false;
+						break;
 					}
 				}
+				//std::cout << "\n";
 			}
 		}
 		if (to_add) {
 			Enfant.Seq[i] = Parent1.Seq[i];
-			restants -= 1;
 		}
 		else {
 			Enfant.Seq[i] = -1;
 		}
 	}
-	while (restants > 0) {
-		int index = 0;
-		std::vector<int> placed;
-		std::vector<int> placeable;
-		while (Enfant.Seq[index] != -1) {
-			placed.push_back(Enfant.Seq[index]);
-			index += 1;
+
+
+	//std::cout << "Enfant ";
+	for (int& i : Enfant.Seq) {
+		if(i == -1)
+		{
+			//std::cout << ". ";
 		}
-		for (int i = 0; i < unProb.NbJob; i += 1) {
-			if (!(std::find(Enfant.Seq.begin(), Enfant.Seq.end(), i) != Enfant.Seq.end())) {
-				bool to_add = true;
-				for (int &j : unProb.Pred[i]) {
-					if (!(std::find(placed.begin(), placed.end(), j) != placed.end())) {
-						to_add = false;
-					}
-				}
-				if (to_add) {
-					placeable.push_back(i);
-				}
-			}
+		else
+		{
+			//std::cout << i << " ";
 		}
-		Enfant.Seq[index] = placeable[rand() % placeable.size()];
-		restants -= 1;
+		
+	}
+	//std::cout << std::endl;
+
+
+
+
+
+
+	std::vector<int> PossibleJobs;
+	for (int i = 0; i < unProb.NbJob; i++)
+	{
+		if (unProb.Pred[i].size() == 0 && (std::find(Enfant.Seq.begin(), Enfant.Seq.end(), i) == Enfant.Seq.end()))
+		{
+			PossibleJobs.push_back(i);
+		}
 	}
 
-	//METHODE BIDON: Recopie l'es genes du'enfant est une copie du Parent1
+
+
+
+	for (int i = 0; i < unProb.NbJob; i++)
+	{
+
+		if (Enfant.Seq[i] == -1)
+		{
+
+			std::vector<int>::iterator it1;
+			it1 = std::find(PossibleJobs.begin(), PossibleJobs.end(), Parent1.Seq[i]);
+
+			std::vector<int>::iterator it2;
+			it2 = std::find(PossibleJobs.begin(), PossibleJobs.end(), Parent2.Seq[i]);
+
+
+			if (Parent1.Seq[i] == Parent2.Seq[i] && (it2 != PossibleJobs.end()))
+			{
+				Enfant.Seq[i] = PossibleJobs[it1 - PossibleJobs.begin()];
+				PossibleJobs.erase(it1);
+			}
+			else if (it1 != PossibleJobs.end() && it2 != PossibleJobs.end())
+			{
+				if (rand() % 2 < 1)
+				{
+					Enfant.Seq[i] = PossibleJobs[it1 - PossibleJobs.begin()];
+					PossibleJobs.erase(it1);
+				}
+				else
+				{
+					Enfant.Seq[i] = PossibleJobs[it2 - PossibleJobs.begin()];
+					PossibleJobs.erase(it2);
+				}
+			}
+			else if (it1 != PossibleJobs.end())
+			{
+				Enfant.Seq[i] = PossibleJobs[it1 - PossibleJobs.begin()];
+				PossibleJobs.erase(it1);
+			}
+			else if (it2 != PossibleJobs.end())
+			{
+				Enfant.Seq[i] = PossibleJobs[it2 - PossibleJobs.begin()];
+				PossibleJobs.erase(it2);
+			}
+			else
+			{
+				int randint = rand() % PossibleJobs.size();
+				Enfant.Seq[i] = PossibleJobs[randint];
+				PossibleJobs.erase(PossibleJobs.begin() + randint);
+			}
+
+		}
+
+		AddSuccToPossibleJobs(PossibleJobs, Enfant.Seq[i], i, Enfant.Seq, unProb);
+	}
+
+
 
 	//**NE PAS ENLEVER
 	EvaluerSolution(Enfant, unProb, unAlgo);
-	if (Enfant.FctObj == 2147483647) {
+	
+	if (!Enfant.Valide) {
 		std::cout << "Solution invalide generee" << std::endl;
 		for (int& i : Parent1.Seq) {
 			std::cout << i << " ";
 		}
 		std::cout << std::endl;
+		
 		for (int& i : Parent2.Seq) {
 			std::cout << i << " ";
 		}
 		std::cout << std::endl;
+
+		std::cout << "Enfant ";
 		for (int& i : Enfant.Seq) {
 			std::cout << i << " ";
 		}
 		std::cout << std::endl;
 		std::cout << "----------------------------------------" << std::endl;
 	}
+	
 	return (Enfant);
 }
 
