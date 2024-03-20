@@ -1,26 +1,26 @@
 #include "Entete.h"
 #pragma comment (lib,"GeneticDLL.lib")
 //%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTANT: %%%%%%%%%%%%%%%%%%%%%%%%% 
-//Le fichier de probleme (.txt) et les fichiers de la DLL (GeneticDLL.dll et GeneticDLL.lib) doivent se trouver dans le répertoire courant du projet pour une exécution à l'aide du compilateur. 
-//Indiquer les arguments du programme dans les propriétés du projet - débogage - arguements.
-//Sinon, utiliser le répertoire execution.
+//Le fichier de probleme (.txt) et les fichiers de la DLL (GeneticDLL.dll et GeneticDLL.lib) doivent se trouver dans le rï¿½pertoire courant du projet pour une exï¿½cution ï¿½ l'aide du compilateur. 
+//Indiquer les arguments du programme dans les propriï¿½tï¿½s du projet - dï¿½bogage - arguements.
+//Sinon, utiliser le rï¿½pertoire execution.
 //NB: le projet actuel doit etre compile dans le meme mode (DEBUG ou RELEASE) que les fichiers de DLL - par defaut en RELEASE
 
 //*****************************************************************************************
 // Prototype des fonctions se trouvant dans la DLL 
 //*****************************************************************************************
 //DESCRIPTION: Lecture du Fichier probleme et initialiation de la structure Problem
-//NB: Construction des listes prédécesseurs/successeurs pour chaque tache
+//NB: Construction des listes prï¿½dï¿½cesseurs/successeurs pour chaque tache
 extern "C" _declspec(dllimport) void LectureProbleme(std::string FileName, TProblem &unProb, TAlgo &unAlgo);
 
 //DESCRIPTION: Affichage a l'ecran permettant de voir si les donnees du fichier (instance) probleme ont ete lues correctement
 extern "C" _declspec(dllimport) void AfficherProbleme (TProblem unProb);
 
-//DESCRIPTION:	Evaluation de la fonction objectif (somme des retards ponderes) d'une solution et MAJ du compteur d'évaluation  + Validation de la solution 
+//DESCRIPTION:	Evaluation de la fonction objectif (somme des retards ponderes) d'une solution et MAJ du compteur d'ï¿½valuation  + Validation de la solution 
 //				Validation de la solution: verification des contraintes de preseance et de la presence de chaque tache une et une seule fois
 extern "C" _declspec(dllimport) void EvaluerSolution(TSolution &uneSol, TProblem unProb, TAlgo &unAlgo);
 
-//DESCRIPTION: Génération d'une population initiale de solutions valides, incluant l'évaluation et la validation
+//DESCRIPTION: Gï¿½nï¿½ration d'une population initiale de solutions valides, incluant l'ï¿½valuation et la validation
 extern "C" _declspec(dllimport) void CreerPopInitialeAleaValide(std::vector<TSolution> &unePop, TProblem unProb, TAlgo &unAlgo);
 
 //DESCRIPTION: Generation d'une population initiale de solutions valides, incluant leur evaluation et leur validation
@@ -36,11 +36,11 @@ extern "C" _declspec(dllimport) void AfficherPopulation(std::vector<TSolution> u
 extern "C" _declspec(dllimport) void TrierPopulation(std::vector<TSolution> &unePop, int Debut, int Fin);
 
 //DESCRIPTION: Mutation (modification aleatoire) d'une solution. La solution mutue est evaluee avant d'etre retournee.
-//- Si solution valide en entrée: une mutation valide est produite et retournee - swap adjacent
-//- Si solution NON valide en entrée : une mutation(sans assurer la validite) est produite et retournee - swap aleatoire
+//- Si solution valide en entrï¿½e: une mutation valide est produite et retournee - swap adjacent
+//- Si solution NON valide en entrï¿½e : une mutation(sans assurer la validite) est produite et retournee - swap aleatoire
 extern "C" _declspec(dllimport) void Mutation(TSolution &Mutant, TProblem unProb, TAlgo &unAlgo);
 
-//DESCRIPTION: Sélection d'un individu par tournoi (taille 2)
+//DESCRIPTION: Sï¿½lection d'un individu par tournoi (taille 2)
 extern "C" _declspec(dllimport) int Selection (std::vector<TSolution> unePop, int _Taille, TProblem unProb);
 
 //DESCRIPTION: Affichage a l'ecran des resultats de l'algorithme evolutionnaire: solution finale (avec etat de validite), nombre d'evaluations et parametres de l'algorithme
@@ -74,7 +74,7 @@ int main(int NbParam, char* Param[])
 	double Alea;
 	string NomFichier;
 
-	//**Lecture des paramètres
+	//**Lecture des paramï¿½tres
 	NomFichier.assign(Param[1]);
 	LAlgo.TaillePop = atoi(Param[2]);
 	LAlgo.ProbCr = atof(Param[3]);
@@ -85,9 +85,9 @@ int main(int NbParam, char* Param[])
 
 	srand((unsigned)time(NULL));					//**Precise un germe pour le generateur aleatoire
 
-	//**Définition de la dimension des tableaux
-	Pop.resize(LAlgo.TaillePop);				//**Le tableau utilise les indices de 0 à TaillePop-1.
-	PopEnfant.resize(LAlgo.TaillePopEnfant);	//**Le tableau utilise les indices de 0 à TaillePopEnfant-1
+	//**Dï¿½finition de la dimension des tableaux
+	Pop.resize(LAlgo.TaillePop);				//**Le tableau utilise les indices de 0 ï¿½ TaillePop-1.
+	PopEnfant.resize(LAlgo.TaillePopEnfant);	//**Le tableau utilise les indices de 0 ï¿½ TaillePopEnfant-1
 
 	//**Lecture du fichier de donnees
 	LectureProbleme(NomFichier, LeProb, LAlgo);
@@ -118,12 +118,12 @@ int main(int NbParam, char* Param[])
 			do
 			{
 				Mere = Selection(Pop, LAlgo.TaillePop, LeProb);
-			} while (Mere == Pere); //Validation: Pere et Mere ne doivent pas avoir le même # de solution
+			} while (Mere == Pere); //Validation: Pere et Mere ne doivent pas avoir le mï¿½me # de solution
 						
-			//**CROISEMENT entre les deux parents. Création de 1 enfant.
+			//**CROISEMENT entre les deux parents. Crï¿½ation de 1 enfant.
 			PopEnfant[i] = Croisement(Pop[Pere], Pop[Mere], LeProb, LAlgo);
 
-			//Vérification pour ne pas perdre une meilleure solution connue: si mutation OU remplacement non elistite
+			//Vï¿½rification pour ne pas perdre une meilleure solution connue: si mutation OU remplacement non elistite
 			if (PopEnfant[i].Valide && (PopEnfant[i].FctObj < Best.FctObj))	Best = PopEnfant[i];
 
 			//AfficherDetailsSolution(Pop[Pere], LeProb, true);
@@ -140,7 +140,7 @@ int main(int NbParam, char* Param[])
 		//AfficherPopulation(Pop, LAlgo.Gen, LeProb);
 		//AfficherPopulation(PopEnfant, LAlgo.Gen, LeProb);
 		
-		//**REMPLACEMENT de la population pour la prochaine génération
+		//**REMPLACEMENT de la population pour la prochaine gï¿½nï¿½ration
 		Remplacement(Pop, PopEnfant, LeProb, LAlgo);
 		TrierPopulation(Pop, 0, LAlgo.TaillePop);
 		
@@ -157,15 +157,15 @@ int main(int NbParam, char* Param[])
 	return 0;
 }
 //******************************************************************************************************
-//**Fonction qui réalise le CROISEMENT (échange de genes) entre deux parents. Retourne l'enfant produit.
+//**Fonction qui rï¿½alise le CROISEMENT (ï¿½change de genes) entre deux parents. Retourne l'enfant produit.
 //******************************************************************************************************
-//**A DÉFINIR PAR L'ÉTUDIANT****************************************************************************
-//**NB: IL FAUT RESPECTER LA DEFINITION DES PARAMÈTRES AINSI QUE LE RETOUR DE LA FONCTION
+//**A Dï¿½FINIR PAR L'ï¿½TUDIANT****************************************************************************
+//**NB: IL FAUT RESPECTER LA DEFINITION DES PARAMï¿½TRES AINSI QUE LE RETOUR DE LA FONCTION
 //****************************************************************************************************** 
 TSolution Croisement(TSolution Parent1, TSolution Parent2, TProblem unProb, TAlgo &unAlgo)
 {
-	//**INDICE: Le sous-programme rand() génère aléatoirement un nombre entier entre 0 et RAND_MAX (i.e., 32767) inclusivement.
-	//**Pour tirer un nombre aléatoire entier entre 0 et MAX-1 inclusivement, il suffit d'utiliser l'instruction suivante : NombreAleatoire = rand() % MAX;
+	//**INDICE: Le sous-programme rand() gï¿½nï¿½re alï¿½atoirement un nombre entier entre 0 et RAND_MAX (i.e., 32767) inclusivement.
+	//**Pour tirer un nombre alï¿½atoire entier entre 0 et MAX-1 inclusivement, il suffit d'utiliser l'instruction suivante : NombreAleatoire = rand() % MAX;
 	
 	int j;
 	TSolution Enfant;
@@ -242,19 +242,19 @@ TSolution Croisement(TSolution Parent1, TSolution Parent2, TProblem unProb, TAlg
 
 
 //*******************************************************************************************************
-//Fonction qui réalise le REMPLACEMENT de la population pour la prochaine generation. Cette fonction doit
+//Fonction qui rï¿½alise le REMPLACEMENT de la population pour la prochaine generation. Cette fonction doit
 //prendre les TaillePop solutions de la population "Parents" et les TaillePopEnfant solutions de la 
 //population "Enfants" et determiner les solutions a retenir pour la prochaine generation.  
-//Les TaillePop solutions retenues doivent être placees dans la population "Parents" (qui est retournee). 
+//Les TaillePop solutions retenues doivent ï¿½tre placees dans la population "Parents" (qui est retournee). 
 //*******************************************************************************************************
 //**A DEFINIR PAR L'ETUDIANT*****************************************************************************
 //**NB: IL FAUT RESPECTER LA DEFINITION DES PARAMETRES
 //******************************************************************************************************* 
-void Remplacement(std::vector<TSolution> &Parents, std::vector<TSolution> Enfants, TProblem unProb, TAlgo unAlgo)
+void Remplacement(std::vector<TSolution>& Parents, std::vector<TSolution> Enfants, TProblem unProb, TAlgo unAlgo)
 {
-	//METHODE BIDON: La population Parent demeure inchangée
+	//METHODE BIDON: La population Parent demeure inchangï¿½e
 
-	//INFOS pour définir votre methode de remplacement...
+	//INFOS pour dï¿½finir votre methode de remplacement...
 
 	int i;
 
@@ -271,24 +271,28 @@ void Remplacement(std::vector<TSolution> &Parents, std::vector<TSolution> Enfant
 
 
 	//**Pour trier toute la population temporaire, il suffit de faire l'appel suivant: 
-	
-	TrierPopulation(Temporaire, 0, unAlgo.TaillePop+ unAlgo.TaillePopEnfant);
+
+	TrierPopulation(Temporaire, 0, unAlgo.TaillePop + unAlgo.TaillePopEnfant);
 
 	int parentsize = Parents.size();
 
-	float RandRatio = 1 - std::min(1.0f, unAlgo.CptEval * unAlgo.CptEval / (float)(unAlgo.NB_EVAL_MAX * unAlgo.NB_EVAL_MAX));
-	RandRatio *= 0.75 * parentsize;
-	RandRatio = (int)RandRatio;
-	
+
+	//afin d'explorer l'ensemble des solutions, on portion des solutions gardï¿½es pour la population suivante seront choisi alï¿½atoirement. Le ratio Deterministe - Stochastique diminuera au cours du temps.
+	//le ratio sera 75% Stochastique au debut et 0% a la fin
+	float RandRatio = (int)0.8 * parentsize;
+
 	Parents.clear();
 
+	//choisi les meilleurs individus de la population
 	for (i = 0; i < parentsize - RandRatio; i++)
 	{
 		Parents.push_back(Temporaire[i]);
 	}
-	
+
 	Temporaire.erase(Temporaire.begin(), Temporaire.begin() + i);
 
+
+	//choisi un nombre d'individu alï¿½atoirement
 	for (i = 0; i < RandRatio; i++)
 	{
 		int j = rand() % Temporaire.size();
@@ -297,14 +301,7 @@ void Remplacement(std::vector<TSolution> &Parents, std::vector<TSolution> Enfant
 		Temporaire.erase(Temporaire.begin() + j);
 	}
 
-	
-	
-	//std::cout << unAlgo.CptEval * unAlgo.CptEval / (float)(unAlgo.NB_EVAL_MAX* unAlgo.NB_EVAL_MAX) << " " << parentsize << " "<< parentsize - RandRatio << " " << RandRatio << "\n";
 
-	//... a definir
-
-	//**A LA FIN: Liberation de la population temporaire
-	
 	for (i = 0; i < Temporaire.size(); i++)
 		Temporaire[i].Seq.clear();
 	Temporaire.clear();
